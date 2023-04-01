@@ -3,6 +3,7 @@ float dmin, dmax;
 int amin, amax;
 int[] annees;
 float traceX1, traceY1, traceX2, traceY2;
+
 // La colonne de données actuellement utilisée.
 int colonne = 0;
 // Le nombre de colonnes.
@@ -17,22 +18,27 @@ int intervalleVolume = 10;
 int intervalleVolumeMineur = 5;
 // Mode de visualisation par défault
 int modeVisualisation = 0;
+// fluidité entre les courbes
 Integrator[] interp;
+// couleur principal  
+int colorPrincpal = #5679C1;
+// couleur secondaire
+int colorSec = #AB87FF;
 
 void setup() {
-  size(800, 600);
+  size(1000, 600);
 
   donnees = new FloatTable("lait-the-cafe.tsv");
-  ncol = donnees.getColumnCount();        // Le nombre de colonnes.
+  ncol = donnees.getColumnCount();       
   dmin = 0;
-  dmax = dmax = ceil(donnees.getTableMax() / intervalleVolume) * intervalleVolume;
+  dmax = ceil(donnees.getTableMax() / intervalleVolume) * intervalleVolume;
   annees = int(donnees.getRowNames());
   amin = annees[0];
   amax = annees[annees.length - 1];
 
   interp = new Integrator[donnees.getRowCount()];
   for (int ligne = 0; ligne < donnees.getRowCount(); ligne++) {
-    interp[ligne] = new Integrator(0, 0.5, 0.2);
+    interp[ligne] = new Integrator(0, 0.5, 0.1);
     interp[ligne].target(donnees.getFloat(ligne, colonne));
   }
 
@@ -56,7 +62,7 @@ void draw() {
   rect(traceX1, traceY1, traceX2, traceY2);
 
   for (int i = 0; i < donnees.getRowCount(); i++) {
-    interp[i].update();          // mise à jour de l'effet de mouvement
+    interp[i].update();      
   }
 
   switch(modeVisualisation) {
@@ -83,24 +89,36 @@ void dessinerModePointLignes() {
   dessineLegendeX("Litres \n consommés \n par pers");
   dessineAxeVolume();
   strokeWeight(2);
-  stroke(#AB87FF);
+  stroke(colorSec);
   noFill();
   dessineLigneDonnees(colonne);
   strokeWeight(5);
-  stroke(#5679C1);
+  stroke(colorPrincpal);
   dessinePointsDonnees(colonne);
 }
 
 void dessinerModeAire() {
   strokeWeight(1);
-  stroke(#5679C1);
-  fill(#5679C1);
+  stroke(colorPrincpal);
+  fill(colorPrincpal);
   dessineLigneDonneesFill(colonne);
   dessineTitre();
   dessineLegendeY("Années");
   dessineAxeAnnees();
   dessineLegendeX("Litres \n consommés \n par pers");
   dessineAxeVolume();
+}
+
+void dessinerModeHistograme() {
+  dessineTitre();
+  dessineLegendeY("Années");
+  dessineAxeAnnees();
+  dessineLegendeX("Litres \n consommés \n par pers");
+  dessineAxeVolume();
+  noFill();
+  strokeWeight(5);
+  stroke(colorPrincpal);
+  dessineRectDonnees(colonne);
 }
 
 void dessineLigneDonneesFill(int col) {
@@ -119,17 +137,7 @@ void dessineLigneDonneesFill(int col) {
   endShape(CLOSE);
 }
 
-void dessinerModeHistograme() {
-  dessineTitre();
-  dessineLegendeY("Années");
-  dessineAxeAnnees();
-  dessineLegendeX("Litres \n consommés \n par pers");
-  dessineAxeVolume();
-  noFill();
-  strokeWeight(5);
-  stroke(#5679C1);
-  dessineRectDonnees(colonne);
-}
+
 
 void dessineRectDonnees(int col) {
   int lignes = donnees.getRowCount();
@@ -168,7 +176,7 @@ void dessineLigneDonnees(int col) {
       vertex(x, y);
     }
   }
-  endShape(); // On termine la ligne sans fermer la forme.
+  endShape(); 
 }
 
 
